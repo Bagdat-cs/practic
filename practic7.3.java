@@ -1,149 +1,118 @@
-using System;
-using System.Collections.Generic;
+import java.util.*;
 
-namespace MediatorChatSystem
-{
-    interface IMediator
-    {
-        void RegisterUser(IUser user, string channelName);
-        void RemoveUser(IUser user, string channelName);
-        void SendMessage(string message, IUser sender, string channelName);
-        void SendPrivateMessage(string message, IUser sender, string receiverName, string channelName);
+interface IMediator {
+    void registerUser(IUser user, String channelName);
+    void removeUser(IUser user, String channelName);
+    void sendMessage(String message, IUser sender, String channelName);
+    void sendPrivateMessage(String message, IUser sender, String receiverName, String channelName);
+}
+
+interface IUser {
+    String getName();
+    void receive(String message, String sender);
+    void receiveSystemMessage(String message);
+}
+
+class User implements IUser {
+    private String name;
+
+    public User(String name) {
+        this.name = name;
     }
 
-    interface IUser
-    {
-        string Name { get; }
-        void Receive(string message, string sender);
-        void ReceiveSystemMessage(string message);
+    public String getName() {
+        return name;
     }
 
-    class User : IUser
-    {
-        public string Name { get; private set; }
+    public void receive(String message, String sender) {
+        System.out.println(name + " получил сообщение от " + sender + ": " + message);
+    }
 
-        public User(string name)
-        {
-            Name = name;
-        }
+    public void receiveSystemMessage(String message) {
+        System.out.println(name + " получил уведомление: " + message);
+    }
+}
 
-        public void Receive(string message, string sender)
-        {
-            Console.WriteLine($"{Name} получил сообщение от {sender}: {message}");
-        }
+class ChatMediator implements IMediator {
+    private Map<String, List<IUser>> channels = new HashMap<>();
 
-        public void ReceiveSystemMessage(string message)
-        {
-            Console.WriteLine($"{Name} получил уведомление: {message}");
+    public void registerUser(IUser user, String channelName) {
+        channels.putIfAbsent(channelName, new ArrayList<>());
+        if (!channels.get(channelName).contains(user)) {
+            channels.get(channelName).add(user);
+            notifyAll(channelName, user.getName() + " присоединился к каналу " + channelName + ".");
         }
     }
 
-    class ChatMediator : IMediator
-    {
-        private Dictionary<string, List<IUser>> channels = new Dictionary<string, List<IUser>>();
+    public void removeUser(IUser user, String channelName) {
+        if (channels.containsKey(channelName) && channels.get(channelName).contains(user)) {
+            channels.get(channelName).remove(user);
+            notifyAll(channelName, user.getName() + " покинул канал " + channelName + ".");
+        }
+    }
 
-        public void RegisterUser(IUser user, string channelName)
-        {
-            if (!channels.ContainsKey(channelName))
-            {
-                channels[channelName] = new List<IUser>();
-            }
-
-            if (!channels[channelName].Contains(user))
-            {
-                channels[channelName].Add(user);
-                NotifyAll(channelName, $"{user.Name} присоединился к каналу {channelName}.");
+    public void sendMessage(String message, IUser sender, String channelName) {
+        if (!channels.containsKey(channelName)) {
+            System.out.println("Ошибка: канал " + channelName + " не существует.");
+            return;
+        }
+        if (!channels.get(channelName).contains(sender)) {
+            System.out.println("Ошибка: " + sender.getName() + " не состоит в канале " + channelName + ".");
+            return;
+        }
+        for (IUser user : channels.get(channelName)) {
+            if (user != sender) {
+                user.receive(message, sender.getName());
             }
         }
+    }
 
-        public void RemoveUser(IUser user, string channelName)
-        {
-            if (channels.ContainsKey(channelName) && channels[channelName].Contains(user))
-            {
-                channels[channelName].Remove(user);
-                NotifyAll(channelName, $"{user.Name} покинул канал {channelName}.");
-            }
+    public void sendPrivateMessage(String message, IUser sender, String receiverName, String channelName) {
+        if (!channels.containsKey(channelName)) {
+            System.out.println("Ошибка: канал " + channelName + " не существует.");
+            return;
         }
-
-        public void SendMessage(string message, IUser sender, string channelName)
-        {
-            if (!channels.ContainsKey(channelName))
-            {
-                Console.WriteLine($"Ошибка: канал {channelName} не существует.");
+        for (IUser user : channels.get(channelName)) {
+            if (user.getName().equals(receiverName)) {
+                user.receive("[Личное сообщение] " + message, sender.getName());
                 return;
             }
-
-            if (!channels[channelName].Contains(sender))
-            {
-                Console.WriteLine($"Ошибка: {sender.Name} не состоит в канале {channelName}.");
-                return;
-            }
-
-            foreach (var user in channels[channelName])
-            {
-                if (user != sender)
-                {
-                    user.Receive(message, sender.Name);
-                }
-            }
         }
-
-        public void SendPrivateMessage(string message, IUser sender, string receiverName, string channelName)
-        {
-            if (!channels.ContainsKey(channelName))
-            {
-                Console.WriteLine($"Ошибка: канал {channelName} не существует.");
-                return;
-            }
-
-            var receiver = channels[channelName].Find(u => u.Name == receiverName);
-            if (receiver != null)
-            {
-                receiver.Receive($"[Личное сообщение] {message}", sender.Name);
-            }
-            else
-            {
-                Console.WriteLine($"Ошибка: пользователь {receiverName} не найден в канале {channelName}.");
-            }
-        }
-
-        private void NotifyAll(string channelName, string notification)
-        {
-            foreach (var user in channels[channelName])
-            {
-                user.ReceiveSystemMessage(notification);
-            }
-        }
+        System.out.println("Ошибка: пользователь " + receiverName + " не найден в канале " + channelName + ".");
     }
 
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            ChatMediator mediator = new ChatMediator();
-
-            IUser alice = new User("Алиса");
-            IUser bob = new User("Боб");
-            IUser charlie = new User("Чарли");
-            IUser diana = new User("Диана");
-
-            mediator.RegisterUser(alice, "General");
-            mediator.RegisterUser(bob, "General");
-            mediator.RegisterUser(charlie, "Sports");
-            mediator.RegisterUser(diana, "Sports");
-
-            alice.ReceiveSystemMessage("=== Демонстрация ===");
-            mediator.SendMessage("Привет всем в General!", alice, "General");
-            mediator.SendMessage("Сегодня играем в футбол!", charlie, "Sports");
-
-            mediator.SendPrivateMessage("Привет, Алиса!", bob, "Алиса", "General");
-
-            mediator.SendMessage("Я хочу написать в Sports", bob, "Sports");
-
-            mediator.RemoveUser(diana, "Sports");
-            mediator.SendMessage("Диана ушла, кто будет капитаном?", charlie, "Sports");
-
-            mediator.SendMessage("Сообщение в несуществующий канал", alice, "Music");
+    private void notifyAll(String channelName, String notification) {
+        for (IUser user : channels.get(channelName)) {
+            user.receiveSystemMessage(notification);
         }
+    }
+}
+
+public class MediatorChatDemo {
+    public static void main(String[] args) {
+        ChatMediator mediator = new ChatMediator();
+
+        IUser alice = new User("Алиса");
+        IUser bob = new User("Боб");
+        IUser charlie = new User("Чарли");
+        IUser diana = new User("Диана");
+
+        mediator.registerUser(alice, "General");
+        mediator.registerUser(bob, "General");
+        mediator.registerUser(charlie, "Sports");
+        mediator.registerUser(diana, "Sports");
+
+        alice.receiveSystemMessage("=== Демонстрация ===");
+        mediator.sendMessage("Привет всем в General!", alice, "General");
+        mediator.sendMessage("Сегодня играем в футбол!", charlie, "Sports");
+
+        mediator.sendPrivateMessage("Привет, Алиса!", bob, "Алиса", "General");
+
+        mediator.sendMessage("Я хочу написать в Sports", bob, "Sports");
+
+        mediator.removeUser(diana, "Sports");
+        mediator.sendMessage("Диана ушла, кто будет капитаном?", charlie, "Sports");
+
+        mediator.sendMessage("Сообщение в несуществующий канал", alice, "Music");
     }
 }
