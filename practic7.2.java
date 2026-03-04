@@ -1,193 +1,98 @@
-using System;
+import java.util.Scanner;
 
-namespace TemplateMethodReports
-{
-    abstract class ReportGenerator
-    {
-        public void GenerateReport()
-        {
-            Log("Начало генерации отчета...");
-            CollectData();
-            FormatData();
-            GenerateHeader();
-            GenerateBody();
-            GenerateFooter();
-            if (CustomerWantsSave())
-            {
-                SaveReport();
-            }
-            else
-            {
-                SendByEmail();
-            }
-            Log("Завершение генерации отчета.");
+abstract class ReportGenerator {
+    public final void generateReport() {
+        log("Начало генерации отчета...");
+        collectData();
+        formatData();
+        generateHeader();
+        generateBody();
+        generateFooter();
+        if (customerWantsSave()) {
+            saveReport();
+        } else {
+            sendByEmail();
         }
-
-        protected virtual void CollectData()
-        {
-            Console.WriteLine("Сбор данных для отчета...");
-        }
-
-        protected abstract void FormatData();
-        protected abstract void GenerateHeader();
-        protected abstract void GenerateBody();
-        protected abstract void GenerateFooter();
-        protected abstract void SaveReport();
-
-        protected virtual bool CustomerWantsSave()
-        {
-            Console.Write("Хотите сохранить отчет в файл (y/n)? ");
-            string answer = Console.ReadLine()?.ToLower();
-
-            if (answer == "y") return true;
-            if (answer == "n") return false;
-
-            Console.WriteLine("Некорректный ввод. Отчет будет отправлен по email.");
-            return false;
-        }
-
-        protected virtual void SendByEmail()
-        {
-            Console.WriteLine("Отчет отправлен по электронной почте.");
-        }
-
-        protected void Log(string message)
-        {
-            Console.WriteLine($"[LOG]: {message}");
-        }
+        log("Завершение генерации отчета.");
     }
 
-    class PdfReport : ReportGenerator
-    {
-        protected override void FormatData()
-        {
-            Console.WriteLine("Форматирование данных для PDF...");
-        }
-
-        protected override void GenerateHeader()
-        {
-            Console.WriteLine("Создание заголовка PDF...");
-        }
-
-        protected override void GenerateBody()
-        {
-            Console.WriteLine("Создание содержимого PDF...");
-        }
-
-        protected override void GenerateFooter()
-        {
-            Console.WriteLine("Создание нижнего колонтитула PDF...");
-        }
-
-        protected override void SaveReport()
-        {
-            Console.WriteLine("Сохранение PDF-отчета в файл.");
-        }
+    protected void collectData() {
+        System.out.println("Сбор данных для отчета...");
     }
 
-    class ExcelReport : ReportGenerator
-    {
-        protected override void FormatData()
-        {
-            Console.WriteLine("Форматирование данных для Excel...");
-        }
+    protected abstract void formatData();
+    protected abstract void generateHeader();
+    protected abstract void generateBody();
+    protected abstract void generateFooter();
+    protected abstract void saveReport();
 
-        protected override void GenerateHeader()
-        {
-            Console.WriteLine("Создание заголовка Excel...");
-        }
-
-        protected override void GenerateBody()
-        {
-            Console.WriteLine("Создание таблицы Excel...");
-        }
-
-        protected override void GenerateFooter()
-        {
-            Console.WriteLine("Создание нижнего колонтитула Excel...");
-        }
-
-        protected override void SaveReport()
-        {
-            Console.WriteLine("Сохранение Excel-отчета в файл.");
-        }
+    protected boolean customerWantsSave() {
+        System.out.print("Хотите сохранить отчет в файл (y/n)? ");
+        Scanner scanner = new Scanner(System.in);
+        String answer = scanner.nextLine().toLowerCase();
+        if (answer.equals("y")) return true;
+        if (answer.equals("n")) return false;
+        System.out.println("Некорректный ввод. Отчет будет отправлен по email.");
+        return false;
     }
 
-    class HtmlReport : ReportGenerator
-    {
-        protected override void FormatData()
-        {
-            Console.WriteLine("Форматирование данных для HTML...");
-        }
-
-        protected override void GenerateHeader()
-        {
-            Console.WriteLine("<h1>Заголовок HTML отчета</h1>");
-        }
-
-        protected override void GenerateBody()
-        {
-            Console.WriteLine("<p>Основное содержимое HTML отчета</p>");
-        }
-
-        protected override void GenerateFooter()
-        {
-            Console.WriteLine("<footer>Подвал HTML отчета</footer>");
-        }
-
-        protected override void SaveReport()
-        {
-            Console.WriteLine("Сохранение HTML-отчета в файл.");
-        }
+    protected void sendByEmail() {
+        System.out.println("Отчет отправлен по электронной почте.");
     }
 
-    class CsvReport : ReportGenerator
-    {
-        protected override void FormatData()
-        {
-            Console.WriteLine("Форматирование данных для CSV...");
-        }
-
-        protected override void GenerateHeader()
-        {
-            Console.WriteLine("Создание заголовка CSV...");
-        }
-
-        protected override void GenerateBody()
-        {
-            Console.WriteLine("Создание строк CSV...");
-        }
-
-        protected override void GenerateFooter()
-        {
-            Console.WriteLine("Добавление итоговой строки CSV...");
-        }
-
-        protected override void SaveReport()
-        {
-            Console.WriteLine("Сохранение CSV-отчета в файл.");
-        }
+    protected void log(String message) {
+        System.out.println("[LOG]: " + message);
     }
+}
 
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("=== Генерация PDF отчета ===");
-            ReportGenerator pdf = new PdfReport();
-            pdf.GenerateReport();
+class PdfReport extends ReportGenerator {
+    protected void formatData() { System.out.println("Форматирование данных для PDF..."); }
+    protected void generateHeader() { System.out.println("Создание заголовка PDF..."); }
+    protected void generateBody() { System.out.println("Создание содержимого PDF..."); }
+    protected void generateFooter() { System.out.println("Создание нижнего колонтитула PDF..."); }
+    protected void saveReport() { System.out.println("Сохранение PDF-отчета в файл."); }
+}
 
-            Console.WriteLine("\n=== Генерация Excel отчета ===");
-            ReportGenerator excel = new ExcelReport();
-            excel.GenerateReport();
+class ExcelReport extends ReportGenerator {
+    protected void formatData() { System.out.println("Форматирование данных для Excel..."); }
+    protected void generateHeader() { System.out.println("Создание заголовка Excel..."); }
+    protected void generateBody() { System.out.println("Создание таблицы Excel..."); }
+    protected void generateFooter() { System.out.println("Создание нижнего колонтитула Excel..."); }
+    protected void saveReport() { System.out.println("Сохранение Excel-отчета в файл."); }
+}
 
-            Console.WriteLine("\n=== Генерация HTML отчета ===");
-            ReportGenerator html = new HtmlReport();
-            html.GenerateReport();
+class HtmlReport extends ReportGenerator {
+    protected void formatData() { System.out.println("Форматирование данных для HTML..."); }
+    protected void generateHeader() { System.out.println("<h1>Заголовок HTML отчета</h1>"); }
+    protected void generateBody() { System.out.println("<p>Основное содержимое HTML отчета</p>"); }
+    protected void generateFooter() { System.out.println("<footer>Подвал HTML отчета</footer>"); }
+    protected void saveReport() { System.out.println("Сохранение HTML-отчета в файл."); }
+}
 
-            Console.WriteLine("\n=== Генерация CSV отчета ===");
-            ReportGenerator csv = new CsvReport();
-            csv.GenerateReport();
-        }
+class CsvReport extends ReportGenerator {
+    protected void formatData() { System.out.println("Форматирование данных для CSV..."); }
+    protected void generateHeader() { System.out.println("Создание заголовка CSV..."); }
+    protected void generateBody() { System.out.println("Создание строк CSV..."); }
+    protected void generateFooter() { System.out.println("Добавление итоговой строки CSV..."); }
+    protected void saveReport() { System.out.println("Сохранение CSV-отчета в файл."); }
+}
+
+public class TemplateMethodDemo {
+    public static void main(String[] args) {
+        System.out.println("=== Генерация PDF отчета ===");
+        ReportGenerator pdf = new PdfReport();
+        pdf.generateReport();
+
+        System.out.println("\n=== Генерация Excel отчета ===");
+        ReportGenerator excel = new ExcelReport();
+        excel.generateReport();
+
+        System.out.println("\n=== Генерация HTML отчета ===");
+        ReportGenerator html = new HtmlReport();
+        html.generateReport();
+
+        System.out.println("\n=== Генерация CSV отчета ===");
+        ReportGenerator csv = new CsvReport();
+        csv.generateReport();
     }
 }
