@@ -1,105 +1,85 @@
-using System;
+import java.util.Scanner;
 
-namespace TemplateMethodPattern
-{
-    abstract class Beverage
-    {
-        public void PrepareRecipe()
-        {
-            BoilWater();
-            Brew();
-            PourInCup();
-            if (CustomerWantsCondiments())
-            {
-                AddCondiments();
-            }
-        }
-
-        private void BoilWater()
-        {
-            Console.WriteLine("Кипятим воду");
-        }
-
-        private void PourInCup()
-        {
-            Console.WriteLine("Наливаем в чашку");
-        }
-
-        protected abstract void Brew();
-        protected abstract void AddCondiments();
-
-        protected virtual bool CustomerWantsCondiments()
-        {
-            Console.Write("Хотите добавить добавки (y/n)? ");
-            string answer = Console.ReadLine()?.ToLower();
-
-            if (answer == "y") return true;
-            if (answer == "n") return false;
-
-            Console.WriteLine("Некорректный ввод, добавки не будут добавлены.");
-            return false;
+abstract class Beverage {
+    public final void prepareRecipe() {
+        boilWater();
+        brew();
+        pourInCup();
+        if (customerWantsCondiments()) {
+            addCondiments();
         }
     }
 
-    class Tea : Beverage
-    {
-        protected override void Brew()
-        {
-            Console.WriteLine("Завариваем чай");
-        }
-
-        protected override void AddCondiments()
-        {
-            Console.WriteLine("Добавляем лимон");
-        }
+    private void boilWater() {
+        System.out.println("Кипятим воду");
     }
 
-    class Coffee : Beverage
-    {
-        protected override void Brew()
-        {
-            Console.WriteLine("Завариваем кофе");
-        }
-
-        protected override void AddCondiments()
-        {
-            Console.WriteLine("Добавляем сахар и молоко");
-        }
+    private void pourInCup() {
+        System.out.println("Наливаем в чашку");
     }
 
-    class HotChocolate : Beverage
-    {
-        protected override void Brew()
-        {
-            Console.WriteLine("Размешиваем какао-порошок в горячей воде");
-        }
+    protected abstract void brew();
+    protected abstract void addCondiments();
 
-        protected override void AddCondiments()
-        {
-            Console.WriteLine("Добавляем взбитые сливки");
-        }
+    protected boolean customerWantsCondiments() {
+        System.out.print("Хотите добавить добавки (y/n)? ");
+        Scanner scanner = new Scanner(System.in);
+        String answer = scanner.nextLine().toLowerCase();
 
-        protected override bool CustomerWantsCondiments()
-        {
-            return true;
-        }
+        if (answer.equals("y")) return true;
+        if (answer.equals("n")) return false;
+
+        System.out.println("Некорректный ввод, добавки не будут добавлены.");
+        return false;
+    }
+}
+
+class Tea extends Beverage {
+    protected void brew() {
+        System.out.println("Завариваем чай");
     }
 
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("=== Приготовление чая ===");
-            Beverage tea = new Tea();
-            tea.PrepareRecipe();
+    protected void addCondiments() {
+        System.out.println("Добавляем лимон");
+    }
+}
 
-            Console.WriteLine("\n=== Приготовление кофе ===");
-            Beverage coffee = new Coffee();
-            coffee.PrepareRecipe();
+class Coffee extends Beverage {
+    protected void brew() {
+        System.out.println("Завариваем кофе");
+    }
 
-            Console.WriteLine("\n=== Приготовление горячего шоколада ===");
-            Beverage hotChocolate = new HotChocolate();
-            hotChocolate.PrepareRecipe();
-        }
+    protected void addCondiments() {
+        System.out.println("Добавляем сахар и молоко");
+    }
+}
+
+class HotChocolate extends Beverage {
+    protected void brew() {
+        System.out.println("Размешиваем какао-порошок в горячей воде");
+    }
+
+    protected void addCondiments() {
+        System.out.println("Добавляем взбитые сливки");
+    }
+
+    protected boolean customerWantsCondiments() {
+        return true;
+    }
+}
+
+public class TemplateMethodDemo {
+    public static void main(String[] args) {
+        System.out.println("=== Приготовление чая ===");
+        Beverage tea = new Tea();
+        tea.prepareRecipe();
+
+        System.out.println("\n=== Приготовление кофе ===");
+        Beverage coffee = new Coffee();
+        coffee.prepareRecipe();
+
+        System.out.println("\n=== Приготовление горячего шоколада ===");
+        Beverage hotChocolate = new HotChocolate();
+        hotChocolate.prepareRecipe();
     }
 }
