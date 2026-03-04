@@ -1,148 +1,118 @@
-using System;
-using System.Collections.Generic;
+import java.util.*;
 
-namespace MediatorPatternChat
-{
-    interface IMediator
-    {
-        void RegisterUser(User user);
-        void SendMessage(string message, User sender);
-        void SendPrivateMessage(string message, User sender, string receiverName);
-        void RemoveUser(User user);
+interface IMediator {
+    void registerUser(User user);
+    void sendMessage(String message, User sender);
+    void sendPrivateMessage(String message, User sender, String receiverName);
+    void removeUser(User user);
+}
+
+class ChatRoom implements IMediator {
+    private List<User> users = new ArrayList<>();
+
+    public void registerUser(User user) {
+        if (!users.contains(user)) {
+            users.add(user);
+            user.setMediator(this);
+            notifyAllUsers(user.getName() + " присоединился к чату.");
+        }
     }
 
-    class ChatRoom : IMediator
-    {
-        private List<User> users = new List<User>();
+    public void removeUser(User user) {
+        if (users.contains(user)) {
+            users.remove(user);
+            notifyAllUsers(user.getName() + " покинул чат.");
+        }
+    }
 
-        public void RegisterUser(User user)
-        {
-            if (!users.Contains(user))
-            {
-                users.Add(user);
-                user.SetMediator(this);
-                NotifyAll($"{user.Name} присоединился к чату.");
+    public void sendMessage(String message, User sender) {
+        if (!users.contains(sender)) {
+            System.out.println("Ошибка: " + sender.getName() + " не является участником чата.");
+            return;
+        }
+        for (User user : users) {
+            if (user != sender) {
+                user.receive(message, sender.getName());
             }
         }
+    }
 
-        public void RemoveUser(User user)
-        {
-            if (users.Contains(user))
-            {
-                users.Remove(user);
-                NotifyAll($"{user.Name} покинул чат.");
-            }
+    public void sendPrivateMessage(String message, User sender, String receiverName) {
+        if (!users.contains(sender)) {
+            System.out.println("Ошибка: " + sender.getName() + " не является участником чата.");
+            return;
         }
-
-        public void SendMessage(string message, User sender)
-        {
-            if (!users.Contains(sender))
-            {
-                Console.WriteLine($"Ошибка: {sender.Name} не является участником чата.");
+        for (User user : users) {
+            if (user.getName().equals(receiverName)) {
+                user.receive("[Личное сообщение] " + message, sender.getName());
                 return;
             }
-
-            foreach (var user in users)
-            {
-                if (user != sender)
-                {
-                    user.Receive(message, sender.Name);
-                }
-            }
         }
-
-        public void SendPrivateMessage(string message, User sender, string receiverName)
-        {
-            if (!users.Contains(sender))
-            {
-                Console.WriteLine($"Ошибка: {sender.Name} не является участником чата.");
-                return;
-            }
-
-            var receiver = users.Find(u => u.Name == receiverName);
-            if (receiver != null)
-            {
-                receiver.Receive($"[Личное сообщение] {message}", sender.Name);
-            }
-            else
-            {
-                Console.WriteLine($"Ошибка: пользователь {receiverName} не найден.");
-            }
-        }
-
-        private void NotifyAll(string notification)
-        {
-            foreach (var user in users)
-            {
-                user.ReceiveSystemMessage(notification);
-            }
-        }
+        System.out.println("Ошибка: пользователь " + receiverName + " не найден.");
     }
 
-    abstract class User
-    {
-        protected IMediator mediator;
-        public string Name { get; private set; }
-
-        public User(string name)
-        {
-            Name = name;
-        }
-
-        public void SetMediator(IMediator mediator)
-        {
-            this.mediator = mediator;
-        }
-
-        public void Send(string message)
-        {
-            mediator?.SendMessage(message, this);
-        }
-
-        public void SendPrivate(string message, string receiverName)
-        {
-            mediator?.SendPrivateMessage(message, this, receiverName);
-        }
-
-        public abstract void Receive(string message, string sender);
-        public abstract void ReceiveSystemMessage(string message);
-    }
-
-    class ChatUser : User
-    {
-        public ChatUser(string name) : base(name) { }
-
-        public override void Receive(string message, string sender)
-        {
-            Console.WriteLine($"{Name} получил сообщение от {sender}: {message}");
-        }
-
-        public override void ReceiveSystemMessage(string message)
-        {
-            Console.WriteLine($"{Name} получил уведомление: {message}");
+    private void notifyAllUsers(String notification) {
+        for (User user : users) {
+            user.receiveSystemMessage(notification);
         }
     }
+}
 
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            ChatRoom chatRoom = new ChatRoom();
+abstract class User {
+    protected IMediator mediator;
+    private String name;
 
-            User user1 = new ChatUser("Алиса");
-            User user2 = new ChatUser("Боб");
-            User user3 = new ChatUser("Чарли");
+    public User(String name) {
+        this.name = name;
+    }
 
-            chatRoom.RegisterUser(user1);
-            chatRoom.RegisterUser(user2);
-            chatRoom.RegisterUser(user3);
+    public String getName() { return name; }
 
-            user1.Send("Всем привет!");
-            user2.SendPrivate("Привет, Алиса!", "Алиса");
+    public void setMediator(IMediator mediator) {
+        this.mediator = mediator;
+    }
 
-            chatRoom.RemoveUser(user3);
+    public void send(String message) {
+        if (mediator != null) mediator.sendMessage(message, this);
+    }
 
-            user3.Send("Я еще здесь?");
-        }
+    public void sendPrivate(String message, String receiverName) {
+        if (mediator != null) mediator.sendPrivateMessage(message, this, receiverName);
+    }
+
+    public abstract void receive(String message, String sender);
+    public abstract void receiveSystemMessage(String message);
+}
+
+class ChatUser extends User {
+    public ChatUser(String name) { super(name); }
+
+    public void receive(String message, String sender) {
+        System.out.println(getName() + " получил сообщение от " + sender + ": " + message);
+    }
+
+    public void receiveSystemMessage(String message) {
+        System.out.println(getName() + " получил уведомление: " + message);
+    }
+}
+
+public class MediatorChatDemo {
+    public static void main(String[] args) {
+        ChatRoom chatRoom = new ChatRoom();
+
+        User user1 = new ChatUser("Алиса");
+        User user2 = new ChatUser("Боб");
+        User user3 = new ChatUser("Чарли");
+
+        chatRoom.registerUser(user1);
+        chatRoom.registerUser(user2);
+        chatRoom.registerUser(user3);
+
+        user1.send("Всем привет!");
+        user2.sendPrivate("Привет, Алиса!", "Алиса");
+
+        chatRoom.removeUser(user3);
+
+        user3.send("Я еще здесь?");
     }
 }
