@@ -6,7 +6,7 @@ interface Beverage {
 class Espresso implements Beverage {
     @Override
     public String getDescription() {
-        return "Espresso";
+        return "Эспрессо";
     }
 
     @Override
@@ -18,7 +18,7 @@ class Espresso implements Beverage {
 class Tea implements Beverage {
     @Override
     public String getDescription() {
-        return "Tea";
+        return "Чай";
     }
 
     @Override
@@ -30,7 +30,7 @@ class Tea implements Beverage {
 class Latte implements Beverage {
     @Override
     public String getDescription() {
-        return "Latte";
+        return "Латте";
     }
 
     @Override
@@ -42,7 +42,7 @@ class Latte implements Beverage {
 class Mocha implements Beverage {
     @Override
     public String getDescription() {
-        return "Mocha";
+        return "Мокко";
     }
 
     @Override
@@ -68,7 +68,6 @@ abstract class BeverageDecorator implements Beverage {
         return beverage.cost();
     }
 }
-
 class Milk extends BeverageDecorator {
     public Milk(Beverage beverage) {
         super(beverage);
@@ -76,7 +75,7 @@ class Milk extends BeverageDecorator {
 
     @Override
     public String getDescription() {
-        return beverage.getDescription() + ", Milk";
+        return beverage.getDescription() + ", Молоко";
     }
 
     @Override
@@ -92,7 +91,7 @@ class Sugar extends BeverageDecorator {
 
     @Override
     public String getDescription() {
-        return beverage.getDescription() + ", Sugar";
+        return beverage.getDescription() + ", Сахар";
     }
 
     @Override
@@ -108,7 +107,7 @@ class WhippedCream extends BeverageDecorator {
 
     @Override
     public String getDescription() {
-        return beverage.getDescription() + ", Whipped Cream";
+        return beverage.getDescription() + ", Взбитые сливки";
     }
 
     @Override
@@ -124,7 +123,7 @@ class VanillaSyrup extends BeverageDecorator {
 
     @Override
     public String getDescription() {
-        return beverage.getDescription() + ", Vanilla Syrup";
+        return beverage.getDescription() + ", Ванильный сироп";
     }
 
     @Override
@@ -136,15 +135,15 @@ class VanillaSyrup extends BeverageDecorator {
 public class CafeOrderSystem {
     public static void main(String[] args) {
         Beverage order1 = new Sugar(new Milk(new Espresso()));
-        System.out.println(order1.getDescription() + " -> $" + order1.cost());
+        System.out.println(order1.getDescription() + " -> " + order1.cost() + " $");
 
         Beverage order2 = new WhippedCream(new Sugar(new Tea()));
-        System.out.println(order2.getDescription() + " -> $" + order2.cost());
+        System.out.println(order2.getDescription() + " -> " + order2.cost() + " $");
 
         Beverage order3 = new WhippedCream(new VanillaSyrup(new Latte()));
-        System.out.println(order3.getDescription() + " -> $" + order3.cost());
+        System.out.println(order3.getDescription() + " -> " + order3.cost() + " $");
 
         Beverage order4 = new VanillaSyrup(new Sugar(new Milk(new Mocha())));
-        System.out.println(order4.getDescription() + " -> $" + order4.cost());
+        System.out.println(order4.getDescription() + " -> " + order4.cost() + " $");
     }
 }
