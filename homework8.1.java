@@ -5,14 +5,14 @@ interface IReport {
 class SalesReport implements IReport {
     @Override
     public String generate() {
-        return "Sales Report: [Order1: $100, Order2: $200, Order3: $150]";
+        return "Отчет по продажам: [Заказ1: 100$, Заказ2: 200$, Заказ3: 150$]";
     }
 }
 
 class UserReport implements IReport {
     @Override
     public String generate() {
-        return "User Report: [User1: Active, User2: Inactive, User3: Active]";
+        return "Отчет по пользователям: [Пользователь1: Активен, Пользователь2: Неактивен, Пользователь3: Активен]";
     }
 }
 
@@ -41,7 +41,7 @@ class DateFilterDecorator extends ReportDecorator {
 
     @Override
     public String generate() {
-        return report.generate() + "\n[Filtered by date: " + startDate + " - " + endDate + "]";
+        return report.generate() + "\n[Фильтрация по датам: " + startDate + " - " + endDate + "]";
     }
 }
 
@@ -55,9 +55,10 @@ class SortingDecorator extends ReportDecorator {
 
     @Override
     public String generate() {
-        return report.generate() + "\n[Sorted by: " + criteria + "]";
+        return report.generate() + "\n[Сортировка по: " + criteria + "]";
     }
 }
+
 class CsvExportDecorator extends ReportDecorator {
     public CsvExportDecorator(IReport report) {
         super(report);
@@ -65,9 +66,10 @@ class CsvExportDecorator extends ReportDecorator {
 
     @Override
     public String generate() {
-        return report.generate() + "\n[Exported to CSV format]";
+        return report.generate() + "\n[Экспортировано в формат CSV]";
     }
 }
+
 class PdfExportDecorator extends ReportDecorator {
     public PdfExportDecorator(IReport report) {
         super(report);
@@ -75,7 +77,7 @@ class PdfExportDecorator extends ReportDecorator {
 
     @Override
     public String generate() {
-        return report.generate() + "\n[Exported to PDF format]";
+        return report.generate() + "\n[Экспортировано в формат PDF]";
     }
 }
 
@@ -89,10 +91,9 @@ class AmountFilterDecorator extends ReportDecorator {
 
     @Override
     public String generate() {
-        return report.generate() + "\n[Filtered by min amount: $" + minAmount + "]";
+        return report.generate() + "\n[Фильтрация по минимальной сумме: " + minAmount + "$]";
     }
 }
-
 class ActiveUserFilterDecorator extends ReportDecorator {
     public ActiveUserFilterDecorator(IReport report) {
         super(report);
@@ -100,7 +101,7 @@ class ActiveUserFilterDecorator extends ReportDecorator {
 
     @Override
     public String generate() {
-        return report.generate() + "\n[Filtered: Only Active Users]";
+        return report.generate() + "\n[Фильтрация: только активные пользователи]";
     }
 }
 
@@ -114,13 +115,14 @@ public class ReportSystemDemo {
         IReport userReport = new PdfExportDecorator(
                                 new ActiveUserFilterDecorator(new UserReport()));
         System.out.println(userReport.generate());
+
         IReport salesReport2 = new SortingDecorator(
-                                new AmountFilterDecorator(new SalesReport(), 150), "Amount");
+                                new AmountFilterDecorator(new SalesReport(), 150), "Сумма");
         System.out.println(salesReport2.generate());
 
         IReport salesReport3 = new PdfExportDecorator(
                                 new SortingDecorator(
-                                    new DateFilterDecorator(new SalesReport(), "2026-02-01", "2026-03-01"), "Date"));
+                                    new DateFilterDecorator(new SalesReport(), "2026-02-01", "2026-03-01"), "Дата"));
         System.out.println(salesReport3.generate());
     }
 }
