@@ -5,15 +5,16 @@ interface IPaymentProcessor {
 class PayPalPaymentProcessor implements IPaymentProcessor {
     @Override
     public void processPayment(double amount) {
-        System.out.println("Processing PayPal payment of $" + amount);
+        System.out.println("Обработка платежа через PayPal на сумму " + amount + " $");
     }
 }
 
 class StripePaymentService {
     public void makeTransaction(double totalAmount) {
-        System.out.println("Processing Stripe transaction of $" + totalAmount);
+        System.out.println("Обработка транзакции через Stripe на сумму " + totalAmount + " $");
     }
 }
+
 class StripePaymentAdapter implements IPaymentProcessor {
     private StripePaymentService stripeService;
 
@@ -29,7 +30,7 @@ class StripePaymentAdapter implements IPaymentProcessor {
 
 class SquarePaymentService {
     public void pay(double sum) {
-        System.out.println("Processing Square payment of $" + sum);
+        System.out.println("Обработка платежа через Square на сумму " + sum + " $");
     }
 }
 
